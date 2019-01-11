@@ -465,20 +465,30 @@ describe("Planner", () => {
 
     });
 
-    it("Should be throw when a class has a missing @injectable annotation", () => {
+    it("Should be thrown when a class has a missing @injectable annotation and constructor parameters", () => {
 
         interface Weapon { }
 
         class Katana implements Weapon { }
 
+        class Shuriken implements Weapon {
+            public steel: string;
+
+            public constructor(steel: string) {
+                this.steel = steel;
+            }
+        }
+
         const container = new Container();
-        container.bind<Weapon>("Weapon").to(Katana);
+        container.bind<Weapon>("Katana").to(Katana);
+        container.bind<Weapon>("Shuriken").to(Shuriken);
 
         const throwFunction = () => {
-            plan(new MetadataReader(), container, false, TargetTypeEnum.Variable, "Weapon");
+            plan(new MetadataReader(), container, false, TargetTypeEnum.Variable, "Shuriken");
         };
 
-        expect(throwFunction).to.throw(`${ERROR_MSGS.MISSING_INJECTABLE_ANNOTATION} Katana.`);
+        container.get("Katana");
+        expect(throwFunction).to.throw(`${ERROR_MSGS.MISSING_INJECTABLE_ANNOTATION} Shuriken.`);
 
     });
 

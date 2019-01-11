@@ -23,18 +23,18 @@ function getTargets(
     // TypeScript compiler generated annotations
     const serviceIdentifiers = metadata.compilerGeneratedMetadata;
 
-    // All types resolved must be annotated with @injectable
-    if (serviceIdentifiers === undefined) {
-        const msg = `${ERROR_MSGS.MISSING_INJECTABLE_ANNOTATION} ${constructorName}.`;
-        throw new Error(msg);
-    }
-
     // User generated annotations
     const constructorArgsMetadata = metadata.userGeneratedMetadata;
 
     const keys = Object.keys(constructorArgsMetadata);
     const hasUserDeclaredUnknownInjections = (func.length === 0 && keys.length > 0);
     const iterations = (hasUserDeclaredUnknownInjections) ? keys.length : func.length;
+
+    // All types resolved with constructor parameters must be annotated with @injectable
+    if (iterations > 0 && serviceIdentifiers === undefined) {
+        const msg = `${ERROR_MSGS.MISSING_INJECTABLE_ANNOTATION} ${constructorName}.`;
+        throw new Error(msg);
+    }
 
     // Target instances that represent constructor arguments to be injected
     const constructorTargets = getConstructorArgsAsTargets(
